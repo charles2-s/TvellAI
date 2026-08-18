@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 export default function Signup() {
   const router = useRouter();
-  const supabase = createClient();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [email, setEmail] = useState("");
@@ -18,6 +17,7 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    const supabase = createClient();
     const { error } = await supabase.auth.signUp({
       email,
       password,

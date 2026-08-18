@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Destination, DestinationType } from "@/types/database";
@@ -20,7 +20,7 @@ export default function EditDestination({
   params: { id: string };
 }) {
   const router = useRouter();
-  const supabase = createClient();
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
   const [name, setName] = useState("");
   const [type, setType] = useState<DestinationType>("Other");
   const [description, setDescription] = useState("");
@@ -31,7 +31,8 @@ export default function EditDestination({
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
-    supabase
+    supabaseRef.current = createClient();
+    supabaseRef.current
       .from("destinations")
       .select("*")
       .eq("id", params.id)
@@ -46,14 +47,20 @@ export default function EditDestination({
         }
         setFetching(false);
       });
-  }, [params.id, supabase]);
+  }, [params.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase
+    if (!supabaseRef.current) {
+      setError("Client not initialized");
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabaseRef.current
       .from("destinations")
       .update({
         name,
