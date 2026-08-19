@@ -63,7 +63,7 @@ export function DestinationForm({
           end_time: endTime || null,
           photos,
           status: destination?.status || "Upcoming",
-          order_index: destination?.order_index ?? 0,
+          order: destination?.order ?? 0,
         }),
       });
 

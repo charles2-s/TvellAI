@@ -28,7 +28,7 @@ export async function GET(
       .from("destinations")
       .select("*")
       .eq("trip_id", trip.id)
-      .order("order_index", { ascending: true });
+      .order("order", { ascending: true });
 
     if (destError) {
       return NextResponse.json({ error: destError.message }, { status: 400 });

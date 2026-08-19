@@ -14,7 +14,7 @@ export interface Destination {
   duration: string | null;
   status: DestinationStatus;
   completed_at: string | null;
-  order_index: number;
+  order: number;
   created_at: string;
   updated_at: string;
 }

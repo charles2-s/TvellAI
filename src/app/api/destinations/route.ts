@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         end_time: body.end_time || null,
         duration,
         status,
-        order_index: body.order_index ?? 0,
+        order: body.order ?? 0,
       })
       .select()
       .single();
@@ -108,7 +108,7 @@ export async function GET(req: Request) {
       .from("destinations")
       .select("*")
       .eq("company_id", company.id)
-      .order("order_index", { ascending: true });
+      .order("order", { ascending: true });
 
     if (tripId) {
       query = query.eq("trip_id", tripId);
