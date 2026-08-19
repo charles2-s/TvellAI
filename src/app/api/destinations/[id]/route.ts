@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import {
+  getDestinationStatus,
+  computeTimeDisplay,
+  suggestDurationLabel,
+} from "@/lib/time";
+import { Destination } from "@/types/destination";
 
 export async function PATCH(
   req: Request,
@@ -16,8 +22,18 @@ export async function PATCH(
   if (body.name) updates.name = body.name;
   if (body.type) updates.type = body.type;
   if (body.description !== undefined) updates.description = body.description;
-  if (body.duration) updates.duration = body.duration;
   if (body.photos) updates.photos = body.photos;
+  if (body.photos?.[0]) updates.cover_photo = body.photos[0];
+  if (body.start_time !== undefined) updates.start_time = body.start_time;
+  if (body.end_time !== undefined) updates.end_time = body.end_time;
+
+  if (body.start_time && body.end_time) {
+    const start = new Date(body.start_time);
+    const end = new Date(body.end_time);
+    if (end >= start) {
+      updates.duration = suggestDurationLabel(start, end);
+    }
+  }
 
   const isStatusOnly = Object.keys(updates).every(
     (key) => key === "status" || key === "completed_at"
@@ -55,7 +71,19 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  return NextResponse.json({ data });
+  const startTime = data.start_time ? new Date(data.start_time) : null;
+  const endTime = data.end_time ? new Date(data.end_time) : null;
+  const status = getDestinationStatus(startTime, endTime, data.status);
+  const { time_remaining, time_display } = computeTimeDisplay(startTime, endTime, status);
+
+  return NextResponse.json({
+    data: {
+      ...data,
+      computed_status: status,
+      time_remaining,
+      time_display,
+    },
+  });
 }
 
 export async function DELETE(
@@ -92,4 +120,36 @@ export async function DELETE(
   }
 
   return NextResponse.json({ success: true });
+}
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("destinations")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  const startTime = data.start_time ? new Date(data.start_time) : null;
+  const endTime = data.end_time ? new Date(data.end_time) : null;
+  const status = getDestinationStatus(startTime, endTime, data.status);
+  const { time_remaining, time_display } = computeTimeDisplay(startTime, endTime, status);
+
+  return NextResponse.json({
+    data: {
+      ...data,
+      computed_status: status,
+      time_remaining,
+      time_display,
+    },
+  });
 }

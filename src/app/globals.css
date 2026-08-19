@@ -1,59 +1,19 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #faf8f5;
-  --foreground: #1a2e1a;
-  --green-50: #f0f7f0;
-  --green-100: #dcebdc;
-  --green-200: #b9d6b9;
-  --green-300: #8fbc8f;
-  --green-400: #6a9e6a;
-  --green-500: #4a7c4a;
-  --green-600: #3d6b3d;
-  --green-700: #2d5a2d;
-  --green-800: #1e3f1e;
-  --green-900: #132613;
-  --sand-50: #fdf8f0;
-  --sand-100: #f9efd6;
-  --sand-200: #f2dcac;
-  --sand-300: #e8c47a;
-  --sand-400: #d4a373;
-  --sand-500: #c08b5c;
-  --sand-600: #a67348;
-  --sand-700: #8a5d3a;
-  --sand-800: #6b4730;
-  --sand-900: #4a3322;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-green-50: var(--green-50);
-  --color-green-100: var(--green-100);
-  --color-green-200: var(--green-200);
-  --color-green-300: var(--green-300);
-  --color-green-400: var(--green-400);
-  --color-green-500: var(--green-500);
-  --color-green-600: var(--green-600);
-  --color-green-700: var(--green-700);
-  --color-green-800: var(--green-800);
-  --color-green-900: var(--green-900);
-  --color-sand-50: var(--sand-50);
-  --color-sand-100: var(--sand-100);
-  --color-sand-200: var(--sand-200);
-  --color-sand-300: var(--sand-300);
-  --color-sand-400: var(--sand-400);
-  --color-sand-500: var(--sand-500);
-  --color-sand-600: var(--sand-600);
-  --color-sand-700: var(--sand-700);
-  --color-sand-800: var(--sand-800);
-  --color-sand-900: var(--sand-900);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
