@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { DestinationWithStatus } from "@/types/destination";
 import { DestinationCard } from "@/components/DestinationCard";
 import { DestinationForm } from "@/components/DestinationForm";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -11,6 +13,38 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    const checkAuth = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: company } = await supabase
+        .from("companies")
+        .select("id")
+        .eq("id", user.id)
+        .single();
+
+      if (!company) {
+        router.push("/login");
+        return;
+      }
+
+      setCheckingAuth(false);
+    };
+
+    checkAuth();
+  }, [router]);
 
   const fetchDestinations = async () => {
     try {
@@ -26,10 +60,12 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    fetchDestinations();
-    const interval = setInterval(fetchDestinations, 60000);
-    return () => clearInterval(interval);
-  }, []);
+    if (!checkingAuth) {
+      fetchDestinations();
+      const interval = setInterval(fetchDestinations, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [checkingAuth]);
 
   const handleToggleComplete = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "Completed" ? "Passed" : "Completed";
@@ -52,13 +88,18 @@ export default function DashboardPage() {
     setDestinations((prev) => [...prev, destination]);
   };
 
-  if (loading) {
+  if (checkingAuth) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading dashboard...</div>
+        <div className="text-gray-500">Loading...</div>
       </div>
     );
   }
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/signout", { method: "POST" });
+    router.push("/login");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -78,6 +119,12 @@ export default function DashboardPage() {
               >
                 View Public Trip
               </Link>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 border border-red-300 rounded-lg"
+              >
+                Log out
+              </button>
               <button
                 onClick={() => setShowForm(true)}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
