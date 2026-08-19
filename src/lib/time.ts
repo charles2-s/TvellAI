@@ -78,13 +78,13 @@ export function getDestinationStatus(
 
   if (!startTime || !endTime) return "Upcoming";
 
-  const now = new Date();
-  const startMs = startTime.getTime();
-  const endMs = endTime.getTime();
+   const now = new Date().getTime();
+   const startMs = startTime.getTime();
+   const endMs = endTime.getTime();
 
-  if (now < startMs) return "Upcoming";
-  if (now >= startMs && now <= endMs) return "Active";
-  return "Passed";
+   if (now < startMs) return "Upcoming";
+   if (now >= startMs && now <= endMs) return "Active";
+   return "Passed";
 }
 
 export function computeTimeDisplay(

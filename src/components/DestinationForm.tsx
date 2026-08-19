@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Destination, DestinationStatus } from "@/types/destination";
+import { DestinationWithStatus, DestinationStatus } from "@/types/destination";
 import { suggestDurationLabel } from "@/lib/time";
 
 interface DestinationFormProps {
   tripId: string;
-  destination?: Destination | null;
-  onSuccess?: (destination: Destination) => void;
+  destination?: DestinationWithStatus | null;
+  onSuccess?: (destination: DestinationWithStatus) => void;
   onCancel?: () => void;
 }
 
@@ -18,7 +18,7 @@ export function DestinationForm({
   onCancel,
 }: DestinationFormProps) {
   const [name, setName] = useState(destination?.name || "");
-  const [type, setType] = useState<Destination["type"]>(destination?.type || "Other");
+  const [type, setType] = useState<DestinationWithStatus["type"]>(destination?.type || "Other");
   const [description, setDescription] = useState(destination?.description || "");
   const [startTime, setStartTime] = useState(
     destination?.start_time
@@ -120,7 +120,7 @@ export function DestinationForm({
         </label>
         <select
           value={type}
-          onChange={(e) => setType(e.target.value as Destination["type"])}
+          onChange={(e) => setType(e.target.value as DestinationWithStatus["type"])}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
         >
           <option value="Wildlife Park">Wildlife Park</option>
