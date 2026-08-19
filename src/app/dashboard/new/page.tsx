@@ -16,7 +16,6 @@ const TYPES: DestinationType[] = [
 
 export default function NewDestination() {
   const router = useRouter();
-  const supabase = createClient();
   const [name, setName] = useState("");
   const [type, setType] = useState<DestinationType>("Other");
   const [description, setDescription] = useState("");
@@ -29,6 +28,7 @@ export default function NewDestination() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    const supabase = createClient();
 
     const {
       data: { user },
