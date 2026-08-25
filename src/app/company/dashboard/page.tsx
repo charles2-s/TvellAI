@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [companyId, setCompanyId] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export default function DashboardPage() {
         return;
       }
 
+      setCompanyId(company.id);
       setCheckingAuth(false);
     };
 
@@ -149,7 +151,7 @@ export default function DashboardPage() {
               Add New Destination
             </h2>
             <DestinationForm
-              tripId="demo-trip-id"
+              companyId={companyId}
               onSuccess={handleFormSuccess}
               onCancel={() => setShowForm(false)}
             />

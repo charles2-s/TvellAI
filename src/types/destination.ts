@@ -2,7 +2,6 @@ export type DestinationStatus = "Upcoming" | "Active" | "Passed" | "Completed";
 
 export interface Destination {
   id: string;
-  trip_id: string;
   company_id: string;
   name: string;
   type: "Wildlife Park" | "Historical Site" | "Forest" | "Other";

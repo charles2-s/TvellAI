@@ -27,7 +27,7 @@ export async function GET(
     const { data: destinations, error: destError } = await supabase
       .from("destinations")
       .select("*")
-      .eq("trip_id", trip.id)
+      .eq("company_id", trip.company_id)
       .order("order", { ascending: true });
 
     if (destError) {

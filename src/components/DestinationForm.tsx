@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DestinationWithStatus, DestinationStatus } from "@/types/destination";
 import { suggestDurationLabel } from "@/lib/time";
 
 interface DestinationFormProps {
-  tripId: string;
+  companyId: string;
   destination?: DestinationWithStatus | null;
   onSuccess?: (destination: DestinationWithStatus) => void;
   onCancel?: () => void;
 }
 
 export function DestinationForm({
-  tripId,
+  companyId,
   destination,
   onSuccess,
   onCancel,
@@ -30,10 +30,18 @@ export function DestinationForm({
       ? new Date(destination.end_time).toISOString().slice(0, 16)
       : ""
   );
-  const [photoUrls, setPhotoUrls] = useState<string[]>(destination?.photos || []);
-  const [newPhotoUrl, setNewPhotoUrl] = useState("");
+  const [photos, setPhotos] = useState<string[]>(destination?.photos || []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch("/api/storage/ensure-bucket", { method: "POST" }).catch(() => {
+      // Bucket may already exist or service role key may be missing
+    });
+  }, []);
 
   const suggestedDuration = startTime && endTime
     ? suggestDurationLabel(new Date(startTime), new Date(endTime))
@@ -45,7 +53,7 @@ export function DestinationForm({
     setError("");
 
     try {
-      const photos = photoUrls.filter(Boolean);
+      const validPhotos = photos.filter(Boolean);
       const url = destination
         ? `/api/destinations/${destination.id}`
         : "/api/destinations";
@@ -55,13 +63,12 @@ export function DestinationForm({
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          trip_id: tripId,
           name,
           type,
           description,
           start_time: startTime || null,
           end_time: endTime || null,
-          photos,
+          photos: validPhotos,
           status: destination?.status || "Upcoming",
           order: destination?.order ?? 0,
         }),
@@ -81,15 +88,52 @@ export function DestinationForm({
     }
   };
 
-  const addPhoto = () => {
-    if (newPhotoUrl.trim()) {
-      setPhotoUrls([...photoUrls, newPhotoUrl.trim()]);
-      setNewPhotoUrl("");
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadError("");
+    const previewUrl = URL.createObjectURL(file);
+    setPhotos((prev) => [...prev, previewUrl]);
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/storage/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Upload failed");
+      }
+
+      const data = await res.json();
+      setPhotos((prev) => {
+        const index = prev.findIndex((url) => url === previewUrl);
+        if (index !== -1) {
+          const next = [...prev];
+          next[index] = data.url;
+          return next;
+        }
+        return prev;
+      });
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed");
+      setPhotos((prev) => prev.filter((url) => url !== previewUrl));
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
   const removePhoto = (index: number) => {
-    setPhotoUrls(photoUrls.filter((_, i) => i !== index));
+    setPhotos(photos.filter((_, i) => i !== index));
   };
 
   return (
@@ -181,25 +225,21 @@ export function DestinationForm({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Photos
         </label>
-        <div className="flex gap-2 mb-2">
-          <input
-            type="url"
-            value={newPhotoUrl}
-            onChange={(e) => setNewPhotoUrl(e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-            placeholder="https://example.com/photo.jpg"
-          />
-          <button
-            type="button"
-            onClick={addPhoto}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200"
-          >
-            Add
-          </button>
-        </div>
-        {photoUrls.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {photoUrls.map((url, i) => (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFileChange}
+          disabled={uploading}
+          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50"
+        />
+        {uploadError && (
+          <p className="mt-1 text-sm text-red-600">{uploadError}</p>
+        )}
+        {photos.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {photos.map((url, i) => (
               <div key={i} className="relative group">
                 <img
                   src={url}
@@ -222,7 +262,7 @@ export function DestinationForm({
       <div className="flex gap-3 pt-2">
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || uploading}
           className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? "Saving..." : destination ? "Update" : "Add Destination"}

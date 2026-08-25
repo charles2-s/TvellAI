@@ -44,7 +44,6 @@ export async function POST(req: Request) {
     const { data, error } = await supabase
       .from("destinations")
       .insert({
-        trip_id: body.trip_id,
         company_id: company.id,
         name: body.name,
         type: body.type,
@@ -82,8 +81,6 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const tripId = searchParams.get("trip_id");
     const supabase = await createClient();
 
     const {
@@ -109,10 +106,6 @@ export async function GET(req: Request) {
       .select("*")
       .eq("company_id", company.id)
       .order("order", { ascending: true });
-
-    if (tripId) {
-      query = query.eq("trip_id", tripId);
-    }
 
     const { data: destinations, error } = await query;
 
