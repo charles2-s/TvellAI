@@ -7,12 +7,33 @@ import {
 } from "@/lib/time";
 import { Destination } from "@/types/destination";
 
+interface DestinationUpdateBody {
+  status?: string;
+  name?: string;
+  type?: string;
+  description?: string;
+  photos?: string[];
+  start_time?: string;
+  end_time?: string;
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = await req.json();
+  let body: DestinationUpdateBody;
+
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  if (body.status !== undefined && body.status !== "Completed" && body.status !== "Upcoming") {
+    return NextResponse.json({ error: `Invalid status: ${body.status}. Must be "Completed" or "Upcoming".` }, { status: 400 });
+  }
+
   const updates: Record<string, unknown> = {};
 
   if (body.status === "Completed") {
@@ -71,7 +92,9 @@ export async function PATCH(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const message = error.message || "Database update failed";
+    const status = message.includes("not found") || message.includes("No rows") ? 404 : 400;
+    return NextResponse.json({ error: message }, { status });
   }
 
   const startTime = data.start_time ? new Date(data.start_time) : null;
@@ -119,7 +142,9 @@ export async function DELETE(
     .eq("company_id", company.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const message = error.message || "Database delete failed";
+    const status = message.includes("not found") || message.includes("No rows") ? 404 : 400;
+    return NextResponse.json({ error: message }, { status });
   }
 
   return NextResponse.json({ success: true });
@@ -139,7 +164,9 @@ export async function GET(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const message = error.message || "Destination not found";
+    const status = message.includes("not found") || message.includes("No rows") ? 404 : 400;
+    return NextResponse.json({ error: message }, { status });
   }
 
   const startTime = data.start_time ? new Date(data.start_time) : null;

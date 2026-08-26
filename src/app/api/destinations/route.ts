@@ -60,6 +60,7 @@ export async function POST(req: Request) {
       .single();
 
     if (error) {
+      console.error("insert destination error:", error);
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
@@ -110,7 +111,8 @@ export async function GET(req: Request) {
     const { data: destinations, error } = await query;
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      console.error("fetch destinations error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     const now = new Date();

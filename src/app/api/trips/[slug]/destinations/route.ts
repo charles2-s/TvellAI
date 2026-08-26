@@ -31,7 +31,8 @@ export async function GET(
       .order("order", { ascending: true });
 
     if (destError) {
-      return NextResponse.json({ error: destError.message }, { status: 400 });
+      console.error("fetch destinations by trip error:", destError);
+      return NextResponse.json({ error: destError.message }, { status: 500 });
     }
 
     const now = new Date();

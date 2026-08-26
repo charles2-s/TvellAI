@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       });
 
     if (error) {
-      return NextResponse.json({ error: `Storage upload failed: ${error.message}` }, { status: 400 });
+      return NextResponse.json({ error: `Storage upload failed: ${error.message}` }, { status: 500 });
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -37,6 +37,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: publicUrl });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal server error";
+    console.error("upload error:", err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -12,7 +12,7 @@ export async function POST() {
     const { data: buckets, error: listError } = await supabase.storage.listBuckets();
 
     if (listError) {
-      return NextResponse.json({ error: `Failed to list buckets: ${listError.message}` }, { status: 400 });
+      return NextResponse.json({ error: `Failed to list storage buckets: ${listError.message}` }, { status: 500 });
     }
 
     const exists = buckets?.some((bucket) => bucket.name === "destination-photos");
@@ -24,13 +24,14 @@ export async function POST() {
       });
 
       if (createError) {
-        return NextResponse.json({ error: `Failed to create bucket: ${createError.message}` }, { status: 400 });
+        return NextResponse.json({ error: `Failed to create storage bucket: ${createError.message}` }, { status: 500 });
       }
     }
 
     return NextResponse.json({ success: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal server error";
+    console.error("ensure-bucket error:", err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
