@@ -1,3 +1,5 @@
+import { DestinationComputedStatus } from "@/types/destination";
+
 export function formatDuration(ms: number): string {
   if (ms <= 0) return "0m";
 
@@ -73,7 +75,7 @@ export function getDestinationStatus(
   startTime: Date | null,
   endTime: Date | null,
   manualStatus: string
-): "Upcoming" | "Active" | "Passed" | "Completed" {
+): DestinationComputedStatus {
   if (manualStatus === "Completed") return "Completed";
 
   if (!startTime || !endTime) return "Upcoming";

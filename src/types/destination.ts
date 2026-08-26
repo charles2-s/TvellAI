@@ -1,4 +1,6 @@
-export type DestinationStatus = "Upcoming" | "Active" | "Passed" | "Completed";
+export type DestinationStoredStatus = "Upcoming" | "Completed";
+
+export type DestinationComputedStatus = "Upcoming" | "Active" | "Passed" | "Completed";
 
 export interface Destination {
   id: string;
@@ -11,7 +13,7 @@ export interface Destination {
   start_time: string | null;
   end_time: string | null;
   duration: string | null;
-  status: DestinationStatus;
+  status: DestinationStoredStatus;
   completed_at: string | null;
   order: number;
   created_at: string;
@@ -19,7 +21,7 @@ export interface Destination {
 }
 
 export interface DestinationWithStatus extends Destination {
-  computed_status: DestinationStatus;
+  computed_status: DestinationComputedStatus;
   time_remaining: string | null;
   time_display: string;
 }

@@ -38,7 +38,7 @@ export function TripClientPage({ slug }: TripClientPageProps) {
   }, [slug]);
 
   const handleToggleComplete = async (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === "Completed" ? "Passed" : "Completed";
+    const newStatus = currentStatus === "Completed" ? "Upcoming" : "Completed";
     const res = await fetch(`/api/destinations/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

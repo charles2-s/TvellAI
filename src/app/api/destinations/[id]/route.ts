@@ -15,9 +15,12 @@ export async function PATCH(
   const body = await req.json();
   const updates: Record<string, unknown> = {};
 
-  if (body.status) {
-    updates.status = body.status;
-    updates.completed_at = body.status === "Completed" ? new Date().toISOString() : null;
+  if (body.status === "Completed") {
+    updates.status = "Completed";
+    updates.completed_at = new Date().toISOString();
+  } else if (body.status === "Upcoming") {
+    updates.status = "Upcoming";
+    updates.completed_at = null;
   }
   if (body.name) updates.name = body.name;
   if (body.type) updates.type = body.type;

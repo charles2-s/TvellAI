@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       duration = suggestDurationLabel(startTime, endTime);
     }
 
-    const status = getDestinationStatus(startTime, endTime, body.status || "Upcoming");
+    const status: Destination["status"] = body.status === "Completed" ? "Completed" : "Upcoming";
     const { time_remaining, time_display } = computeTimeDisplay(startTime, endTime, status);
 
     const { data, error } = await supabase
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       data: {
         ...data,
-        computed_status: status,
+        computed_status: getDestinationStatus(startTime, endTime, status),
         time_remaining,
         time_display,
       },

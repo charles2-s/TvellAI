@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { DestinationWithStatus, DestinationStatus } from "@/types/destination";
+import { DestinationWithStatus, DestinationStoredStatus } from "@/types/destination";
 import { suggestDurationLabel } from "@/lib/time";
 
 interface DestinationFormProps {
@@ -69,7 +69,7 @@ export function DestinationForm({
           start_time: startTime || null,
           end_time: endTime || null,
           photos: validPhotos,
-          status: destination?.status || "Upcoming",
+          status: (destination?.status === "Completed" ? "Completed" : "Upcoming") as DestinationStoredStatus,
           order: destination?.order ?? 0,
         }),
       });
