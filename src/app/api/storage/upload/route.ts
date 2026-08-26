@@ -4,7 +4,14 @@ import { createClient } from "@/lib/supabase/admin";
 export async function POST(req: Request) {
   try {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      return NextResponse.json({ error: "Server misconfigured: missing Supabase admin credentials" }, { status: 500 });
+      return NextResponse.json(
+        {
+          error:
+            "Server misconfigured: missing Supabase admin credentials. " +
+            "Ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in .env.local and Vercel environment variables.",
+        },
+        { status: 500 }
+      );
     }
 
     const formData = await req.formData();
@@ -27,7 +34,11 @@ export async function POST(req: Request) {
       });
 
     if (error) {
-      return NextResponse.json({ error: `Storage upload failed: ${error.message}` }, { status: 500 });
+      console.error("upload storage full error:", error);
+      return NextResponse.json(
+        { error: `Storage upload failed: ${error.message}` },
+        { status: 500 }
+      );
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -36,8 +47,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: publicUrl });
   } catch (err) {
+    console.error("upload unexpected full error:", err);
     const message = err instanceof Error ? err.message : "Internal server error";
-    console.error("upload error:", err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

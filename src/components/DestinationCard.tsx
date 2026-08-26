@@ -6,12 +6,16 @@ import { CountdownTimer } from "./CountdownTimer";
 interface DestinationCardProps {
   destination: DestinationWithStatus;
   onToggleComplete?: (id: string, currentStatus: string) => void;
+  onEdit?: (destination: DestinationWithStatus) => void;
+  onDelete?: (id: string) => void;
   showCompanyActions?: boolean;
 }
 
 export function DestinationCard({
   destination,
   onToggleComplete,
+  onEdit,
+  onDelete,
   showCompanyActions = false,
 }: DestinationCardProps) {
   const coverPhoto = destination.cover_photo || destination.photos[0] || null;
@@ -40,14 +44,30 @@ export function DestinationCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
 
-        {isCompleted && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-all duration-300">
-            <div className="flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-full shadow-lg backdrop-blur-sm animate-bounce-soft">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-sm font-semibold tracking-wide">Completed</span>
-            </div>
+        {showCompanyActions && (onEdit || onDelete) && (
+          <div className="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {onEdit && (
+              <button
+                onClick={() => onEdit(destination)}
+                className="p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-white/50 text-stone-700 hover:bg-white hover:text-brand-700 transition-colors"
+                title="Edit destination"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13l-2.305.382a.375.375 0 01-.42-.42l.382-2.305a4.5 4.5 0 011.13-1.897L16.862 4.487zM16.5 7.5l-1.5-1.5" />
+                </svg>
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(destination.id)}
+                className="p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-white/50 text-stone-700 hover:bg-white hover:text-rose-700 transition-colors"
+                title="Delete destination"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.061-.94-1.75-1.816-1.616L20.25 2.25M18 9h3.75M5.25 9h13.5" />
+                </svg>
+              </button>
+            )}
           </div>
         )}
 

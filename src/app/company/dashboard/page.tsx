@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [editingDestination, setEditingDestination] = useState<DestinationWithStatus | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [companyId, setCompanyId] = useState("");
   const router = useRouter();
@@ -85,9 +86,39 @@ export default function DashboardPage() {
     }
   };
 
+  const handleEdit = (destination: DestinationWithStatus) => {
+    setEditingDestination(destination);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this destination? This action cannot be undone.");
+    if (!confirmed) return;
+
+    const res = await fetch(`/api/destinations/${id}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      setDestinations((prev) => prev.filter((d) => d.id !== id));
+    }
+  };
+
   const handleFormSuccess = (destination: DestinationWithStatus) => {
     setShowForm(false);
-    setDestinations((prev) => [...prev, destination]);
+    setEditingDestination(null);
+    setDestinations((prev) => {
+      const exists = prev.find((d) => d.id === destination.id);
+      if (exists) {
+        return prev.map((d) => (d.id === destination.id ? destination : d));
+      }
+      return [...prev, destination];
+    });
+  };
+
+  const handleFormCancel = () => {
+    setShowForm(false);
+    setEditingDestination(null);
   };
 
   if (checkingAuth) {
@@ -133,7 +164,10 @@ export default function DashboardPage() {
                 Log out
               </button>
               <button
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                  setEditingDestination(null);
+                  setShowForm(true);
+                }}
                 className="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-semibold hover:bg-brand-700 shadow-sm shadow-brand-600/20 transition-all active:scale-95"
               >
                 Add Destination
@@ -153,12 +187,13 @@ export default function DashboardPage() {
         {showForm && (
           <div className="mb-8 bg-white rounded-2xl shadow-card border border-stone-200/70 p-6 sm:p-8 animate-slide-up">
             <h2 className="text-lg font-bold text-stone-900 mb-5">
-              Add New Destination
+              {editingDestination ? "Edit Destination" : "Add New Destination"}
             </h2>
             <DestinationForm
               companyId={companyId}
+              destination={editingDestination}
               onSuccess={handleFormSuccess}
-              onCancel={() => setShowForm(false)}
+              onCancel={handleFormCancel}
             />
           </div>
         )}
@@ -181,7 +216,10 @@ export default function DashboardPage() {
               Get started by adding your first destination. Build an unforgettable trip experience for your travelers.
             </p>
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                setEditingDestination(null);
+                setShowForm(true);
+              }}
               className="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-semibold hover:bg-brand-700 shadow-sm shadow-brand-600/20 transition-all active:scale-95"
             >
               Add your first destination
@@ -194,6 +232,8 @@ export default function DashboardPage() {
                 key={dest.id}
                 destination={dest}
                 onToggleComplete={handleToggleComplete}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
                 showCompanyActions={true}
               />
             ))}
