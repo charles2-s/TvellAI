@@ -92,8 +92,11 @@ export default function DashboardPage() {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-stone-500 font-medium">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -104,32 +107,34 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+    <div className="min-h-screen bg-background">
+      <header className="bg-white/80 backdrop-blur-md border-b border-stone-200/80 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Company Dashboard</h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <h1 className="text-2xl font-bold text-stone-900 tracking-tight">
+                Company Dashboard
+              </h1>
+              <p className="text-sm text-stone-500 mt-0.5">
                 Manage your trip destinations
               </p>
             </div>
             <div className="flex gap-3">
               <Link
                 href="/t/demo-trip"
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg"
+                className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 border border-stone-300 rounded-xl hover:border-stone-400 transition-colors"
               >
                 View Public Trip
               </Link>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 border border-red-300 rounded-lg"
+                className="px-4 py-2 text-sm font-medium text-rose-600 hover:text-rose-700 border border-rose-300 rounded-xl hover:border-rose-400 transition-colors"
               >
                 Log out
               </button>
               <button
                 onClick={() => setShowForm(true)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
+                className="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-semibold hover:bg-brand-700 shadow-sm shadow-brand-600/20 transition-all active:scale-95"
               >
                 Add Destination
               </button>
@@ -138,16 +143,16 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg">
+          <div className="mb-6 p-4 bg-rose-50 text-rose-700 rounded-xl border border-rose-200 animate-slide-up">
             {error}
           </div>
         )}
 
         {showForm && (
-          <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="mb-8 bg-white rounded-2xl shadow-card border border-stone-200/70 p-6 sm:p-8 animate-slide-up">
+            <h2 className="text-lg font-bold text-stone-900 mb-5">
               Add New Destination
             </h2>
             <DestinationForm
@@ -158,18 +163,32 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {destinations.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-            <p className="text-gray-500 mb-4">No destinations yet.</p>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="skeleton h-80 rounded-2xl" />
+            ))}
+          </div>
+        ) : destinations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center animate-slide-up">
+            <div className="w-16 h-16 bg-warm-100 rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">📍</span>
+            </div>
+            <h3 className="text-lg font-bold text-stone-900 mb-1">
+              No destinations yet
+            </h3>
+            <p className="text-sm text-stone-500 max-w-sm mb-6">
+              Get started by adding your first destination. Build an unforgettable trip experience for your travelers.
+            </p>
             <button
               onClick={() => setShowForm(true)}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
+              className="px-5 py-2.5 bg-brand-600 text-white rounded-xl text-sm font-semibold hover:bg-brand-700 shadow-sm shadow-brand-600/20 transition-all active:scale-95"
             >
               Add your first destination
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {destinations.map((dest) => (
               <DestinationCard
                 key={dest.id}
