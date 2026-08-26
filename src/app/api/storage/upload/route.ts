@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/admin";
 
 export async function POST(req: Request) {
   try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({ error: "Server misconfigured: missing Supabase admin credentials" }, { status: 500 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 
@@ -23,7 +27,7 @@ export async function POST(req: Request) {
       });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: `Storage upload failed: ${error.message}` }, { status: 400 });
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -31,10 +35,8 @@ export async function POST(req: Request) {
       .getPublicUrl(data.path);
 
     return NextResponse.json({ url: publicUrl });
-  } catch {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -35,12 +35,27 @@ export function DestinationForm({
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [bucketError, setBucketError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch("/api/storage/ensure-bucket", { method: "POST" }).catch(() => {
-      // Bucket may already exist or service role key may be missing
-    });
+    fetch("/api/storage/ensure-bucket", { method: "POST" })
+      .then((res) => {
+        if (!res.ok) {
+          return res.json().then((data) => {
+            throw new Error(data.error || "Failed to initialize photo storage");
+          });
+        }
+        return res.json();
+      })
+      .then(() => {
+        setBucketError("");
+      })
+      .catch((err) => {
+        const message = err instanceof Error ? err.message : "Failed to initialize photo storage";
+        setBucketError(message);
+        console.error("Bucket init error:", message);
+      });
   }, []);
 
   const suggestedDuration = startTime && endTime
@@ -107,11 +122,21 @@ export function DestinationForm({
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Upload failed");
+        let errorMessage = `Upload failed with status ${res.status}`;
+        try {
+          const data = await res.json();
+          errorMessage = data.error || errorMessage;
+        } catch {
+          // Response was not JSON
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();
+      if (!data.url) {
+        throw new Error("Upload succeeded but no URL was returned");
+      }
+
       setPhotos((prev) => {
         const index = prev.findIndex((url) => url === previewUrl);
         if (index !== -1) {
@@ -122,7 +147,9 @@ export function DestinationForm({
         return prev;
       });
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Upload failed");
+      const message = err instanceof Error ? err.message : "Upload failed";
+      console.error("Photo upload error:", err);
+      setUploadError(message);
       setPhotos((prev) => prev.filter((url) => url !== previewUrl));
     } finally {
       setUploading(false);
@@ -141,6 +168,12 @@ export function DestinationForm({
       {error && (
         <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">
           {error}
+        </div>
+      )}
+
+      {bucketError && (
+        <div className="p-3 bg-yellow-50 text-yellow-800 rounded-lg text-sm">
+          <strong>Storage setup issue:</strong> {bucketError}
         </div>
       )}
 
@@ -234,8 +267,13 @@ export function DestinationForm({
           disabled={uploading}
           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50"
         />
+        {uploading && (
+          <p className="mt-1 text-sm text-blue-600 font-medium">Uploading photo...</p>
+        )}
         {uploadError && (
-          <p className="mt-1 text-sm text-red-600">{uploadError}</p>
+          <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+            <strong>Upload failed:</strong> {uploadError}
+          </div>
         )}
         {photos.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2">
