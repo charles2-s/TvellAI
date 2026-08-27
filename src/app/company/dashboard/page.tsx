@@ -17,7 +17,7 @@ export default function DashboardPage() {
   const [editingDestination, setEditingDestination] = useState<DestinationWithStatus | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [companyId, setCompanyId] = useState("");
-  const [companySlug, setCompanySlug] = useState("");
+  const [tripSlug, setTripSlug] = useState("");
   const [showShare, setShowShare] = useState(false);
   const router = useRouter();
 
@@ -46,7 +46,15 @@ export default function DashboardPage() {
       }
 
       setCompanyId(company.id);
-      setCompanySlug(company.slug || "");
+
+      const tripRes = await fetch("/api/trips/current");
+      if (tripRes.ok) {
+        const tripData = await tripRes.json();
+        setTripSlug(tripData.trip?.slug || company.slug || "");
+      } else {
+        setTripSlug(company.slug || "");
+      }
+
       setCheckingAuth(false);
     };
 
@@ -142,13 +150,13 @@ export default function DashboardPage() {
   };
 
   const publicTripUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/t/${companySlug}`
+    ? `${window.location.origin}/t/${tripSlug}`
     : "";
 
   return (
     <div className="min-h-screen bg-cream-100 relative">
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.04] pointer-events-none"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.08] pointer-events-none"
         style={{
           backgroundImage:
             "url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80')",
@@ -169,7 +177,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex gap-3">
                 <Link
-                  href={`/t/${companySlug || "demo-trip"}`}
+                  href={`/t/${tripSlug || "demo-trip"}`}
                   className="px-4 py-2 text-sm font-medium text-charcoal-600 hover:text-charcoal-900 border border-charcoal-200 rounded-xl hover:border-charcoal-300 transition-colors"
                 >
                   View Public Trip
