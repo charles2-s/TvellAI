@@ -36,7 +36,7 @@ export default function DashboardPage() {
 
       const { data: company } = await supabase
         .from("companies")
-        .select("id, slug")
+        .select("id, slug, name")
         .eq("id", user.id)
         .single();
 
@@ -50,9 +50,19 @@ export default function DashboardPage() {
       const tripRes = await fetch("/api/trips/current");
       if (tripRes.ok) {
         const tripData = await tripRes.json();
-        setTripSlug(tripData.trip?.slug || company.slug || "");
+        const slug = tripData.trip?.slug || company.slug || "";
+        setTripSlug(slug);
+        console.log("Dashboard trip slug resolved:", slug);
       } else {
-        setTripSlug(company.slug || "");
+        const { data: existingTrip } = await supabase
+          .from("trips")
+          .select("slug")
+          .eq("company_id", company.id)
+          .single();
+
+        const slug = existingTrip?.slug || company.slug || "";
+        setTripSlug(slug);
+        console.log("Dashboard fallback trip slug:", slug);
       }
 
       setCheckingAuth(false);

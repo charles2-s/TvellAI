@@ -14,13 +14,35 @@ export async function GET(
     const { slug } = await params;
     const supabase = await createClient();
 
-    const { data: trip, error: tripError } = await supabase
+    let trip = null;
+
+    const { data: tripBySlug } = await supabase
       .from("trips")
       .select("id, name, slug, company_id")
       .eq("slug", slug)
       .single();
 
-    if (tripError || !trip) {
+    if (tripBySlug) {
+      trip = tripBySlug;
+    } else {
+      const { data: companyBySlug } = await supabase
+        .from("companies")
+        .select("id, slug, name")
+        .eq("slug", slug)
+        .single();
+
+      if (companyBySlug) {
+        const { data: tripByCompany } = await supabase
+          .from("trips")
+          .select("id, name, slug, company_id")
+          .eq("company_id", companyBySlug.id)
+          .single();
+
+        trip = tripByCompany;
+      }
+    }
+
+    if (!trip) {
       return NextResponse.json({ error: "Trip not found" }, { status: 404 });
     }
 
