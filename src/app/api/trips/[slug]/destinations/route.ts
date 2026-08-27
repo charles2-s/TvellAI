@@ -12,50 +12,69 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    console.log("[/api/trips/[slug]/destinations] received slug:", JSON.stringify(slug));
+
     const supabase = await createClient();
+    console.log("[/api/trips/[slug]/destinations] supabase client url:", process.env.NEXT_PUBLIC_SUPABASE_URL);
 
     let trip = null;
 
-    const { data: tripBySlug } = await supabase
+    const tripBySlugResult = await supabase
       .from("trips")
       .select("id, name, slug, company_id")
       .eq("slug", slug)
       .single();
 
-    if (tripBySlug) {
-      trip = tripBySlug;
+    console.log("[/api/trips/[slug]/destinations] trips query result:", JSON.stringify({
+      data: tripBySlugResult.data,
+      error: tripBySlugResult.error,
+    }));
+
+    if (tripBySlugResult.data) {
+      trip = tripBySlugResult.data;
     } else {
-      const { data: companyBySlug } = await supabase
+      const companyBySlugResult = await supabase
         .from("companies")
         .select("id, slug, name")
         .eq("slug", slug)
         .single();
 
-      if (companyBySlug) {
-        const { data: tripByCompany } = await supabase
+      console.log("[/api/trips/[slug]/destinations] companies query result:", JSON.stringify({
+        data: companyBySlugResult.data,
+        error: companyBySlugResult.error,
+      }));
+
+      if (companyBySlugResult.data) {
+        const tripByCompanyResult = await supabase
           .from("trips")
           .select("id, name, slug, company_id")
-          .eq("company_id", companyBySlug.id)
+          .eq("company_id", companyBySlugResult.data.id)
           .single();
 
-        trip = tripByCompany;
+        console.log("[/api/trips/[slug]/destinations] trips-by-company query result:", JSON.stringify({
+          data: tripByCompanyResult.data,
+          error: tripByCompanyResult.error,
+        }));
+
+        trip = tripByCompanyResult.data;
 
         if (!trip) {
-          const { data: newTrip, error: tripError } = await supabase
+          const newTripResult = await supabase
             .from("trips")
             .insert({
-              slug: companyBySlug.slug || slug,
-              name: companyBySlug.name || slug,
-              company_id: companyBySlug.id,
+              slug: companyBySlugResult.data.slug || slug,
+              name: companyBySlugResult.data.name || slug,
+              company_id: companyBySlugResult.data.id,
             })
             .select("id, name, slug, company_id")
             .single();
 
-          if (tripError) {
-            console.error("auto-create trip error:", tripError);
-          }
+          console.log("[/api/trips/[slug]/destinations] auto-create trip result:", JSON.stringify({
+            data: newTripResult.data,
+            error: newTripResult.error,
+          }));
 
-          trip = newTrip || null;
+          trip = newTripResult.data || null;
         }
       }
     }
@@ -102,7 +121,8 @@ export async function GET(
       },
       destinations: enriched,
     });
-  } catch {
+  } catch (err) {
+    console.error("[/api/trips/[slug]/destinations] unexpected error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
