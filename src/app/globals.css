@@ -3,19 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 50 6% 96%;
-    --foreground: 222.2 84% 4.9%;
-    --border: 220 13% 91%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground;
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -23,14 +11,6 @@
 }
 
 @layer utilities {
-  .animate-in {
-    animation: animateIn 0.3s ease-out;
-  }
-
-  .animate-press {
-    animation: press 0.15s ease-out;
-  }
-
   .skeleton {
     @apply relative overflow-hidden bg-stone-200/60 rounded-lg;
   }
@@ -46,29 +26,6 @@
       transparent
     );
     animation: shimmer 1.5s infinite;
-  }
-}
-
-@keyframes animateIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes press {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.96);
-  }
-  100% {
-    transform: scale(1);
   }
 }
 

@@ -41,23 +41,25 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center px-6">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center text-green-900">
-          Create your account
-        </h1>
-        <p className="mt-2 text-center text-sm text-green-700/80">
-          Set up your company and start sharing trips.
-        </p>
+    <div className="min-h-screen bg-cream-100 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-card border border-charcoal-100 p-8 sm:p-10 animate-slide-up">
+        <div className="text-center mb-8">
+          <h1 className="font-display text-3xl text-charcoal-900 mb-2">
+            Create your account
+          </h1>
+          <p className="text-sm text-charcoal-500">
+            Set up your company and start sharing trips.
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div className="rounded-xl border border-clay-200 bg-clay-50 p-4 text-sm text-clay-700">
               {error}
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-green-900">
+            <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
               Company name
             </label>
             <input
@@ -65,15 +67,15 @@ export default function Signup() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-green-200 bg-white px-3 py-2 text-sm outline-none focus:border-green-500"
+              className="w-full px-4 py-2.5 rounded-xl border border-charcoal-200 bg-cream-50 text-sm outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-500/10 transition-all"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-green-900">
+            <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
               Trip link slug
             </label>
-            <div className="mt-1 flex rounded-lg border border-green-200 bg-white overflow-hidden">
-              <span className="flex items-center px-3 text-sm text-green-600 bg-green-50 border-r border-green-200">
+            <div className="flex rounded-xl border border-charcoal-200 bg-cream-50 overflow-hidden">
+              <span className="flex items-center px-3 text-sm text-charcoal-500 bg-cream-100 border-r border-charcoal-200">
                 trailshare.app/t/
               </span>
               <input
@@ -82,15 +84,15 @@ export default function Signup() {
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
                 placeholder="your-trip-name"
-                className="w-full px-3 py-2 text-sm outline-none focus:border-green-500"
+                className="w-full px-3 py-2.5 text-sm outline-none focus:border-forest-500 bg-transparent"
               />
             </div>
-            <p className="mt-1 text-xs text-green-600">
+            <p className="mt-1.5 text-xs text-charcoal-500">
               Use letters, numbers, and hyphens only.
             </p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-green-900">
+            <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
               Email
             </label>
             <input
@@ -98,11 +100,11 @@ export default function Signup() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-green-200 bg-white px-3 py-2 text-sm outline-none focus:border-green-500"
+              className="w-full px-4 py-2.5 rounded-xl border border-charcoal-200 bg-cream-50 text-sm outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-500/10 transition-all"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-green-900">
+            <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
               Password
             </label>
             <input
@@ -111,21 +113,21 @@ export default function Signup() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-green-200 bg-white px-3 py-2 text-sm outline-none focus:border-green-500"
+              className="w-full px-4 py-2.5 rounded-xl border border-charcoal-200 bg-cream-50 text-sm outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-500/10 transition-all"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-full bg-green-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-800 disabled:opacity-50"
+            className="w-full rounded-xl bg-forest-700 px-4 py-3 text-sm font-semibold text-white hover:bg-forest-800 disabled:opacity-50 transition-all duration-200 hover:scale-[1.01] active:scale-95 shadow-sm shadow-forest-900/10"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-green-700/80">
+        <p className="mt-8 text-center text-sm text-charcoal-500">
           Already have an account?{" "}
-          <Link href="/login" className="font-semibold text-green-800 underline">
+          <Link href="/login" className="font-semibold text-forest-700 hover:text-forest-800">
             Log in
           </Link>
         </p>

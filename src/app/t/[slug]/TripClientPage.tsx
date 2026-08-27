@@ -55,10 +55,10 @@ export function TripClientPage({ slug }: TripClientPageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-cream-100 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-stone-500 font-medium">Loading trip...</p>
+          <div className="w-8 h-8 border-2 border-forest-700 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-charcoal-500 font-medium">Loading trip...</p>
         </div>
       </div>
     );
@@ -66,33 +66,33 @@ export function TripClientPage({ slug }: TripClientPageProps) {
 
   if (error || !trip) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-cream-100 flex items-center justify-center">
         <div className="text-center animate-slide-up">
-          <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 bg-clay-50 rounded-full flex items-center justify-center mx-auto mb-3">
             <span className="text-xl">⚠️</span>
           </div>
-          <p className="text-rose-600 font-medium">{error || "Trip not found"}</p>
+          <p className="text-clay-700 font-medium">{error || "Trip not found"}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-white/80 backdrop-blur-md border-b border-stone-200/80 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-cream-100">
+      <header className="bg-white/80 backdrop-blur-md border-b border-charcoal-100 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-stone-900 tracking-tight">
+              <h1 className="font-display text-3xl text-charcoal-900 tracking-tight">
                 {trip.name}
               </h1>
-              <p className="text-sm text-stone-500 mt-0.5">
+              <p className="text-sm text-charcoal-500 mt-0.5">
                 {destinations.length} destination{destinations.length !== 1 ? "s" : ""}
               </p>
             </div>
             <Link
               href="/"
-              className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 border border-stone-300 rounded-xl hover:border-stone-400 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-charcoal-600 hover:text-charcoal-900 border border-charcoal-200 rounded-xl hover:border-charcoal-300 transition-colors"
             >
               ← Back
             </Link>
@@ -100,21 +100,21 @@ export function TripClientPage({ slug }: TripClientPageProps) {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {destinations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center animate-slide-up">
-            <div className="w-16 h-16 bg-warm-100 rounded-full flex items-center justify-center mb-4">
-              <span className="text-3xl">📍</span>
+          <div className="flex flex-col items-center justify-center py-24 text-center animate-slide-up">
+            <div className="w-20 h-20 bg-cream-200 rounded-full flex items-center justify-center mb-5">
+              <span className="text-4xl">📍</span>
             </div>
-            <h3 className="text-lg font-bold text-stone-900 mb-1">
+            <h3 className="font-display text-2xl text-charcoal-900 mb-2">
               No destinations scheduled yet
             </h3>
-            <p className="text-sm text-stone-500 max-w-sm">
+            <p className="text-sm text-charcoal-500 max-w-sm">
               Check back later for exciting destinations on this trip.
             </p>
           </div>
         ) : (
-          <div className="grid gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {destinations.map((dest) => (
               <DestinationCard
                 key={dest.id}

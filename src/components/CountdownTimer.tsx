@@ -13,7 +13,7 @@ export function CountdownTimer({ destination }: CountdownTimerProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(new Date());
-    }, 30000); // Update every 30 seconds for snappier alerts
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -22,7 +22,7 @@ export function CountdownTimer({ destination }: CountdownTimerProps) {
 
   if (!startTime || !endTime) {
     return (
-      <span className="text-sm text-stone-400 italic">
+      <span className="text-sm text-charcoal-400 italic">
         Not yet scheduled
       </span>
     );
@@ -65,16 +65,16 @@ export function CountdownTimer({ destination }: CountdownTimerProps) {
     );
   }
 
-  let badgeClass = "bg-stone-100 text-stone-600";
+  let badgeClass = "bg-cream-200 text-charcoal-600";
   let icon = "⏱";
   let display = destination.time_display;
 
   if (destination.status === "Completed") {
-    badgeClass = "bg-stone-200 text-stone-500 line-through";
+    badgeClass = "bg-cream-300 text-charcoal-500 line-through";
     icon = "✓";
     display = "Completed";
   } else if (destination.status === "Upcoming") {
-    badgeClass = "bg-brand-50 text-brand-700 border border-brand-200";
+    badgeClass = "bg-forest-50 text-forest-700 border border-forest-200";
     icon = "🕐";
     const diff = diffToStart;
     if (diff > 0 && diff < 86400000) {
@@ -85,12 +85,12 @@ export function CountdownTimer({ destination }: CountdownTimerProps) {
       display = `Starts in ${days}d ${hours}h`;
     }
   } else if (destination.status === "Active") {
-    badgeClass = "bg-brand-50 text-brand-700 border border-brand-200";
+    badgeClass = "bg-forest-50 text-forest-700 border border-forest-200";
     icon = "▶";
     const diff = diffToEnd;
     display = `${formatDurationShort(Math.max(0, diff))} remaining`;
   } else if (destination.status === "Passed") {
-    badgeClass = "bg-stone-100 text-stone-500";
+    badgeClass = "bg-cream-200 text-charcoal-500";
     icon = "◼";
     display = "Time elapsed";
   }

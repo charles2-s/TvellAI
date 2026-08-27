@@ -164,21 +164,21 @@ export function DestinationForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+        <div className="p-4 bg-clay-50 text-clay-700 rounded-xl text-sm border border-clay-200">
           {error}
         </div>
       )}
 
       {bucketError && (
-        <div className="p-3 bg-yellow-50 text-yellow-800 rounded-lg text-sm">
+        <div className="p-4 bg-cream-200 text-charcoal-700 rounded-xl text-sm border border-cream-300">
           <strong>Storage setup issue:</strong> {bucketError}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
           Place name
         </label>
         <input
@@ -186,19 +186,19 @@ export function DestinationForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          className="w-full px-4 py-2.5 rounded-xl border border-charcoal-200 bg-cream-50 text-sm outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-500/10 transition-all"
           placeholder="e.g. Maasai Mara National Reserve"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
           Type
         </label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value as DestinationWithStatus["type"])}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          className="w-full px-4 py-2.5 rounded-xl border border-charcoal-200 bg-cream-50 text-sm outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-500/10 transition-all"
         >
           <option value="Wildlife Park">Wildlife Park</option>
           <option value="Historical Site">Historical Site</option>
@@ -208,46 +208,46 @@ export function DestinationForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
           Description
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          className="w-full px-4 py-2.5 rounded-xl border border-charcoal-200 bg-cream-50 text-sm outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-500/10 transition-all resize-none"
           placeholder="Describe this destination..."
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
             Start date & time
           </label>
           <input
             type="datetime-local"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2.5 rounded-xl border border-charcoal-200 bg-cream-50 text-sm outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-500/10 transition-all"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
             End date & time
           </label>
           <input
             type="datetime-local"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2.5 rounded-xl border border-charcoal-200 bg-cream-50 text-sm outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-500/10 transition-all"
           />
         </div>
       </div>
 
       {suggestedDuration && (
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-green-50 text-green-700 font-medium">
+        <div className="flex items-center gap-2 text-sm text-charcoal-600">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-forest-50 text-forest-700 font-medium border border-forest-200">
             {suggestedDuration}
           </span>
           <span>computed duration</span>
@@ -255,7 +255,7 @@ export function DestinationForm({
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
           Photos
         </label>
         <input
@@ -265,13 +265,13 @@ export function DestinationForm({
           capture="environment"
           onChange={handleFileChange}
           disabled={uploading}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 disabled:opacity-50"
+          className="block w-full text-sm text-charcoal-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-forest-50 file:text-forest-700 hover:file:bg-forest-100 disabled:opacity-50"
         />
         {uploading && (
-          <p className="mt-1 text-sm text-blue-600 font-medium">Uploading photo...</p>
+          <p className="mt-1 text-sm text-forest-700 font-medium">Uploading photo...</p>
         )}
         {uploadError && (
-          <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+          <div className="mt-2 p-3 bg-clay-50 border border-clay-200 text-clay-700 rounded-lg text-sm">
             <strong>Upload failed:</strong> {uploadError}
           </div>
         )}
@@ -287,7 +287,7 @@ export function DestinationForm({
                 <button
                   type="button"
                   onClick={() => removePhoto(i)}
-                  className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-clay-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   ×
                 </button>
@@ -301,7 +301,7 @@ export function DestinationForm({
         <button
           type="submit"
           disabled={saving || uploading}
-          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-4 py-2.5 bg-forest-700 text-white rounded-xl font-semibold hover:bg-forest-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.01] active:scale-95 shadow-sm shadow-forest-900/10"
         >
           {saving ? "Saving..." : destination ? "Update" : "Add Destination"}
         </button>
@@ -309,7 +309,7 @@ export function DestinationForm({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
+            className="px-4 py-2.5 border border-charcoal-200 text-charcoal-700 rounded-xl font-semibold hover:bg-cream-50 transition-colors"
           >
             Cancel
           </button>
