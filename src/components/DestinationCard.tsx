@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { DestinationWithStatus } from "@/types/destination";
 import { CountdownTimer } from "./CountdownTimer";
 
@@ -20,6 +21,9 @@ export function DestinationCard({
 }: DestinationCardProps) {
   const coverPhoto = destination.cover_photo || destination.photos[0] || null;
   const isCompleted = destination.status === "Completed";
+  const [imgError, setImgError] = useState(false);
+
+  const showImage = coverPhoto && !imgError;
 
   return (
     <div
@@ -28,10 +32,11 @@ export function DestinationCard({
       }`}
     >
       <div className="relative">
-        {coverPhoto ? (
+        {showImage ? (
           <img
             src={coverPhoto}
             alt={destination.name}
+            onError={() => setImgError(true)}
             className={`w-full h-52 object-cover transition-all duration-300 ${
               isCompleted ? "grayscale brightness-95" : "group-hover:scale-105"
             }`}
