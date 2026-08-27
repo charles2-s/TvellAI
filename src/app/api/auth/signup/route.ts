@@ -4,7 +4,15 @@ import { createClient } from "@/lib/supabase/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, slug, email, password } = body;
+    const {
+      name,
+      slug,
+      email,
+      password,
+      accountType,
+      website,
+      logoUrl,
+    } = body;
 
     if (!name || !slug || !email || !password) {
       return NextResponse.json(
@@ -22,6 +30,7 @@ export async function POST(req: Request) {
         data: {
           name,
           slug,
+          account_type: accountType || "company",
         },
       },
     });
@@ -31,15 +40,28 @@ export async function POST(req: Request) {
     }
 
     if (data.user) {
+      const companyPayload: Record<string, unknown> = {
+        id: data.user.id,
+        name,
+        slug,
+      };
+
+      if (accountType) {
+        companyPayload.account_type = accountType;
+      }
+      if (website !== undefined) {
+        companyPayload.website = website;
+      }
+      if (logoUrl !== undefined) {
+        companyPayload.logo_url = logoUrl;
+      }
+
       const { error: companyError } = await supabase
         .from("companies")
-        .insert({
-          id: data.user.id,
-          name,
-          slug,
-        });
+        .insert(companyPayload);
 
       if (companyError) {
+        console.error("company insert error:", companyError);
         return NextResponse.json(
           { error: companyError.message },
           { status: 400 }

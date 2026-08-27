@@ -13,14 +13,18 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data: company } = await supabase
+    const { data: company, error: companyError } = await supabase
       .from("companies")
       .select("id, slug, name")
       .eq("id", user.id)
       .single();
 
-    if (!company) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (companyError || !company) {
+      console.error("companies fetch error:", companyError);
+      return NextResponse.json(
+        { error: "Company not found" },
+        { status: 404 }
+      );
     }
 
     let { data: trip } = await supabase
@@ -30,11 +34,12 @@ export async function GET() {
       .single();
 
     if (!trip) {
+      const fallbackSlug = (company.slug || `trip-${company.id}`).toLowerCase().replace(/[^a-z0-9-]/g, "");
       const { data: newTrip, error: tripError } = await supabase
         .from("trips")
         .insert({
-          slug: company.slug,
-          name: company.name,
+          slug: fallbackSlug,
+          name: company.name || fallbackSlug,
           company_id: company.id,
         })
         .select("id, slug, name")
@@ -43,7 +48,7 @@ export async function GET() {
       if (tripError || !newTrip) {
         console.error("trip creation error:", tripError);
         return NextResponse.json(
-          { error: "Failed to create trip" },
+          { error: "Failed to create trip", details: tripError?.message || null },
           { status: 500 }
         );
       }
@@ -52,7 +57,8 @@ export async function GET() {
     }
 
     return NextResponse.json({ trip });
-  } catch {
+  } catch (err) {
+    console.error("/api/trips/current unexpected error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

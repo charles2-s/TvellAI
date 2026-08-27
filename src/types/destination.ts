@@ -42,6 +42,9 @@ export interface Trip {
 export interface Company {
   id: string;
   name: string;
+  slug: string;
+  account_type: "company" | "personal";
   logo_url: string | null;
+  website: string | null;
   description: string | null;
 }

@@ -39,6 +39,24 @@ export async function GET(
           .single();
 
         trip = tripByCompany;
+
+        if (!trip) {
+          const { data: newTrip, error: tripError } = await supabase
+            .from("trips")
+            .insert({
+              slug: companyBySlug.slug || slug,
+              name: companyBySlug.name || slug,
+              company_id: companyBySlug.id,
+            })
+            .select("id, name, slug, company_id")
+            .single();
+
+          if (tripError) {
+            console.error("auto-create trip error:", tripError);
+          }
+
+          trip = newTrip || null;
+        }
       }
     }
 
