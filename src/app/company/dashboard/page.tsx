@@ -156,12 +156,13 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-cream-100 relative">
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.08] pointer-events-none"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.18] pointer-events-none"
         style={{
           backgroundImage:
             "url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80')",
         }}
       />
+      <div className="absolute inset-0 bg-gradient-to-b from-cream-100/80 via-cream-100/70 to-cream-100/90 pointer-events-none" />
 
       <div className="relative">
         <header className="bg-white/70 backdrop-blur-md border-b border-charcoal-100 sticky top-0 z-10">
