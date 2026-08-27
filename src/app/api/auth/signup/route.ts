@@ -31,6 +31,8 @@ export async function POST(req: Request) {
           name,
           slug,
           account_type: accountType || "company",
+          website: website || null,
+          logo_url: logoUrl || null,
         },
       },
     });
@@ -40,30 +42,22 @@ export async function POST(req: Request) {
     }
 
     if (data.user) {
-      const companyPayload: Record<string, unknown> = {
-        id: data.user.id,
-        name,
-        slug,
-      };
-
-      if (accountType) {
-        companyPayload.account_type = accountType;
-      }
-      if (website !== undefined) {
-        companyPayload.website = website;
-      }
-      if (logoUrl !== undefined) {
-        companyPayload.logo_url = logoUrl;
-      }
-
       const { error: companyError } = await supabase
         .from("companies")
-        .insert(companyPayload);
+        .insert({
+          id: data.user.id,
+          name,
+          slug,
+        });
 
       if (companyError) {
         console.error("company insert error:", companyError);
         return NextResponse.json(
-          { error: companyError.message },
+          {
+            error: companyError.message,
+            hint:
+              "Database schema may be missing columns. Contact support or check Supabase migrations.",
+          },
           { status: 400 }
         );
       }

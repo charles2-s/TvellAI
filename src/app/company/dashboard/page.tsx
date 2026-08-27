@@ -16,9 +16,14 @@ export default function DashboardPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingDestination, setEditingDestination] = useState<DestinationWithStatus | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [needsSetup, setNeedsSetup] = useState(false);
   const [companyId, setCompanyId] = useState("");
   const [tripSlug, setTripSlug] = useState("");
   const [showShare, setShowShare] = useState(false);
+  const [setupName, setSetupName] = useState("");
+  const [setupSlug, setSetupSlug] = useState("");
+  const [setupLoading, setSetupLoading] = useState(false);
+  const [setupError, setSetupError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -41,7 +46,10 @@ export default function DashboardPage() {
         .single();
 
       if (!company) {
-        router.push("/login");
+        setSetupName(user.user_metadata?.name || user.email || "");
+        setSetupSlug(user.user_metadata?.slug || "");
+        setNeedsSetup(true);
+        setCheckingAuth(false);
         return;
       }
 
@@ -52,7 +60,6 @@ export default function DashboardPage() {
         const tripData = await tripRes.json();
         const slug = tripData.trip?.slug || company.slug || "";
         setTripSlug(slug);
-        console.log("Dashboard trip slug resolved:", slug);
       } else {
         const { data: existingTrip } = await supabase
           .from("trips")
@@ -62,7 +69,6 @@ export default function DashboardPage() {
 
         const slug = existingTrip?.slug || company.slug || "";
         setTripSlug(slug);
-        console.log("Dashboard fallback trip slug:", slug);
       }
 
       setCheckingAuth(false);
@@ -85,12 +91,41 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (!checkingAuth) {
+    if (!checkingAuth && !needsSetup) {
       fetchDestinations();
       const interval = setInterval(fetchDestinations, 60000);
       return () => clearInterval(interval);
     }
-  }, [checkingAuth]);
+  }, [checkingAuth, needsSetup]);
+
+  const handleSetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSetupLoading(true);
+    setSetupError("");
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("companies")
+        .insert({
+          id: (await supabase.auth.getUser()).data.user?.id,
+          name: setupName,
+          slug: setupSlug,
+        });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setNeedsSetup(false);
+      fetchDestinations();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Setup failed";
+      setSetupError(message);
+    } finally {
+      setSetupLoading(false);
+    }
+  };
 
   const handleToggleComplete = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "Completed" ? "Upcoming" : "Completed";
@@ -170,6 +205,76 @@ export default function DashboardPage() {
   const publicTripUrl = typeof window !== "undefined"
     ? `${window.location.origin}/t/${tripSlug}`
     : "";
+
+  if (needsSetup) {
+    return (
+      <div className="min-h-screen relative flex items-center justify-center px-4">
+        <div
+          className="absolute inset-0 bg-cover bg-center pointer-events-none"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80')",
+          }}
+        />
+        <div className="absolute inset-0 bg-charcoal-950/40 pointer-events-none" />
+        <div className="relative w-full max-w-md bg-white rounded-3xl shadow-card-hover border border-charcoal-100 p-8 sm:p-10 animate-slide-up">
+          <div className="text-center mb-8">
+            <h1 className="font-display text-3xl text-charcoal-900 mb-2">
+              Finish setting up your account
+            </h1>
+            <p className="text-sm text-charcoal-500">
+              We need a few details to create your trip profile.
+            </p>
+          </div>
+
+          <form onSubmit={handleSetup} className="space-y-5">
+            {setupError && (
+              <div className="rounded-xl border border-clay-200 bg-clay-50 p-4 text-sm text-clay-700">
+                {setupError}
+              </div>
+            )}
+            <div>
+              <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
+                Company / Personal name
+              </label>
+              <input
+                type="text"
+                required
+                value={setupName}
+                onChange={(e) => setSetupName(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-charcoal-200 bg-cream-50 text-sm outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-500/10 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-charcoal-700 mb-1.5">
+                Trip link slug
+              </label>
+              <div className="flex rounded-xl border border-charcoal-200 bg-cream-50 overflow-hidden">
+                <span className="flex items-center px-3 text-sm text-charcoal-500 bg-cream-100 border-r border-charcoal-200">
+                  trailshare.app/t/
+                </span>
+                <input
+                  type="text"
+                  required
+                  value={setupSlug}
+                  onChange={(e) => setSetupSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                  placeholder="your-trip-name"
+                  className="w-full px-3 py-2.5 text-sm outline-none focus:border-forest-500 bg-transparent"
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={setupLoading}
+              className="w-full rounded-xl bg-forest-700 px-4 py-3 text-sm font-semibold text-white hover:bg-forest-800 disabled:opacity-50 transition-all duration-200 hover:scale-[1.01] active:scale-95 shadow-sm shadow-forest-900/10"
+            >
+              {setupLoading ? "Saving..." : "Complete setup"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative">

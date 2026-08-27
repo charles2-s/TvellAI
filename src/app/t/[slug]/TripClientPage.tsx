@@ -20,12 +20,17 @@ export function TripClientPage({ slug }: TripClientPageProps) {
   const fetchDestinations = async () => {
     try {
       const res = await fetch(`/api/trips/${slug}/destinations`);
-      if (!res.ok) throw new Error("Failed to load trip");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Request failed with status ${res.status}`);
+      }
       const data = await res.json();
       setTrip(data.trip);
       setDestinations(data.destinations);
-    } catch {
-      setError("Failed to load trip destinations");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to load trip destinations";
+      console.error("TripClientPage fetch error:", err, "status:", message);
+      setError(message);
     } finally {
       setLoading(false);
     }
