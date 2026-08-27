@@ -135,10 +135,18 @@ export default function DashboardPage() {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-cream-100 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-forest-700 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-charcoal-500 font-medium">Loading dashboard...</p>
+      <div className="min-h-screen relative flex items-center justify-center">
+        <div
+          className="absolute inset-0 bg-cover bg-center pointer-events-none"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80')",
+          }}
+        />
+        <div className="absolute inset-0 bg-charcoal-950/40 pointer-events-none" />
+        <div className="relative flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-white/80 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-white/80 font-medium">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -154,15 +162,15 @@ export default function DashboardPage() {
     : "";
 
   return (
-    <div className="min-h-screen bg-cream-100 relative">
+    <div className="min-h-screen relative">
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.18] pointer-events-none"
+        className="absolute inset-0 bg-cover bg-center pointer-events-none"
         style={{
           backgroundImage:
             "url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80')",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-cream-100/80 via-cream-100/70 to-cream-100/90 pointer-events-none" />
+      <div className="absolute inset-0 bg-charcoal-950/30 pointer-events-none" />
 
       <div className="relative">
         <header className="bg-white/70 backdrop-blur-md border-b border-charcoal-100 sticky top-0 z-10">
@@ -238,13 +246,13 @@ export default function DashboardPage() {
             </div>
           ) : destinations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center animate-slide-up">
-              <div className="w-20 h-20 bg-cream-200 rounded-full flex items-center justify-center mb-5">
+              <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mb-5 border border-white/20">
                 <span className="text-4xl">📍</span>
               </div>
-              <h3 className="font-display text-2xl text-charcoal-900 mb-2">
+              <h3 className="font-display text-2xl text-white mb-2">
                 No destinations yet
               </h3>
-              <p className="text-sm text-charcoal-500 max-w-sm mb-8">
+              <p className="text-sm text-white/80 max-w-sm mb-8">
                 Get started by adding your first destination. Build an unforgettable trip experience for your travelers.
               </p>
               <button
