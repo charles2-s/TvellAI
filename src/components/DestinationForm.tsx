@@ -69,6 +69,13 @@ export function DestinationForm({
 
     try {
       const validPhotos = photos.filter(Boolean);
+      const toUtcIso = (value: string) => {
+        if (!value) return null;
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return null;
+        return date.toISOString();
+      };
+
       const url = destination
         ? `/api/destinations/${destination.id}`
         : "/api/destinations";
@@ -81,8 +88,8 @@ export function DestinationForm({
           name,
           type,
           description,
-          start_time: startTime || null,
-          end_time: endTime || null,
+          start_time: toUtcIso(startTime),
+          end_time: toUtcIso(endTime),
           photos: validPhotos,
           status: (destination?.status === "Completed" ? "Completed" : "Upcoming") as DestinationStoredStatus,
           order: destination?.order ?? 0,
