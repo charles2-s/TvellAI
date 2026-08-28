@@ -48,6 +48,13 @@ export function formatTimeUntilStart(startTime: Date): string {
   const now = new Date();
   const diff = startTime.getTime() - now.getTime();
 
+  console.log("formatTimeUntilStart debug:", {
+    now: now.toISOString(),
+    start: startTime.toISOString(),
+    diffMs: diff,
+    diffMinutes: Math.floor(diff / 60000),
+  });
+
   if (diff <= 0) return "Starting now";
 
   const days = Math.floor(diff / 86400000);
@@ -83,6 +90,17 @@ export function getDestinationStatus(
    const now = new Date().getTime();
    const startMs = startTime.getTime();
    const endMs = endTime.getTime();
+
+   console.log("getDestinationStatus debug:", {
+     now: new Date(now).toISOString(),
+     start: startTime.toISOString(),
+     end: endTime.toISOString(),
+     nowMs: now,
+     startMs,
+     endMs,
+     diffToStart: startMs - now,
+     result: now < startMs ? "Upcoming" : now >= startMs && now <= endMs ? "Active" : "Passed",
+   });
 
    if (now < startMs) return "Upcoming";
    if (now >= startMs && now <= endMs) return "Active";

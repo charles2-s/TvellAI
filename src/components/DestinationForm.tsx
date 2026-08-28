@@ -22,12 +22,22 @@ export function DestinationForm({
   const [description, setDescription] = useState(destination?.description || "");
   const [startTime, setStartTime] = useState(
     destination?.start_time
-      ? new Date(destination.start_time).toISOString().slice(0, 16)
+      ? (() => {
+          const d = new Date(destination.start_time);
+          const offset = d.getTimezoneOffset();
+          const local = new Date(d.getTime() - offset * 60000);
+          return local.toISOString().slice(0, 16);
+        })()
       : ""
   );
   const [endTime, setEndTime] = useState(
     destination?.end_time
-      ? new Date(destination.end_time).toISOString().slice(0, 16)
+      ? (() => {
+          const d = new Date(destination.end_time);
+          const offset = d.getTimezoneOffset();
+          const local = new Date(d.getTime() - offset * 60000);
+          return local.toISOString().slice(0, 16);
+        })()
       : ""
   );
   const [photos, setPhotos] = useState<string[]>(destination?.photos || []);
@@ -94,6 +104,14 @@ export function DestinationForm({
           status: (destination?.status === "Completed" ? "Completed" : "Upcoming") as DestinationStoredStatus,
           order: destination?.order ?? 0,
         }),
+      });
+
+      console.log("DestinationForm submit:", {
+        startTime,
+        endTime,
+        startUtc: toUtcIso(startTime),
+        endUtc: toUtcIso(endTime),
+        status: res.status,
       });
 
       if (!res.ok) {
