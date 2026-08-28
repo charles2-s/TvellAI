@@ -13,7 +13,7 @@ export function CountdownTimer({ destination }: CountdownTimerProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(new Date());
-    }, 30000);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -96,12 +96,19 @@ export function CountdownTimer({ destination }: CountdownTimerProps) {
   }
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${badgeClass}`}
-    >
-      <span>{icon}</span>
-      <span>{display}</span>
-    </span>
+    <div className="flex flex-col gap-1">
+      <span
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold w-fit ${badgeClass}`}
+      >
+        <span>{icon}</span>
+        <span>{display}</span>
+      </span>
+      {destination.status !== "Completed" && endTime && (
+        <span className="text-[11px] text-charcoal-500">
+          Ends {endTime.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -111,14 +118,19 @@ function formatDurationShort(ms: number): string {
   const days = Math.floor(totalSeconds / 86400);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
   if (days > 0) {
     const h = hours > 0 ? ` ${hours}h` : "";
-    return `${days}d${h}`;
+    const m = minutes > 0 ? ` ${minutes}m` : "";
+    return `${days}d${h}${m}`;
   }
   if (hours > 0) {
     const m = minutes > 0 ? ` ${minutes}m` : "";
     return `${hours}h${m}`;
   }
-  return `${minutes}m`;
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+  return `${seconds}s`;
 }
