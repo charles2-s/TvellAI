@@ -59,7 +59,7 @@ export default function DashboardPage() {
       setCompanyId(company.id);
       setAccountName(company.name || "");
       setAccountType((company.account_type as "company" | "personal") || "company");
-      setLogoUrl(company.logo_url || null);
+      setLogoUrl(company.logo_url || user.user_metadata?.logo_url || null);
 
       const tripRes = await fetch("/api/trips/current");
       if (tripRes.ok) {
