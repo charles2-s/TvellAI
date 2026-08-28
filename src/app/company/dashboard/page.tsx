@@ -20,6 +20,9 @@ export default function DashboardPage() {
   const [companyId, setCompanyId] = useState("");
   const [tripSlug, setTripSlug] = useState("");
   const [showShare, setShowShare] = useState(false);
+  const [accountName, setAccountName] = useState("");
+  const [accountType, setAccountType] = useState<"company" | "personal" | "">("");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [setupName, setSetupName] = useState("");
   const [setupSlug, setSetupSlug] = useState("");
   const [setupLoading, setSetupLoading] = useState(false);
@@ -41,7 +44,7 @@ export default function DashboardPage() {
 
       const { data: company } = await supabase
         .from("companies")
-        .select("id, slug, name")
+        .select("id, slug, name, account_type, logo_url")
         .eq("id", user.id)
         .single();
 
@@ -54,6 +57,9 @@ export default function DashboardPage() {
       }
 
       setCompanyId(company.id);
+      setAccountName(company.name || "");
+      setAccountType((company.account_type as "company" | "personal") || "company");
+      setLogoUrl(company.logo_url || null);
 
       const tripRes = await fetch("/api/trips/current");
       if (tripRes.ok) {
@@ -285,13 +291,26 @@ export default function DashboardPage() {
         <header className="bg-white/70 backdrop-blur-md border-b border-charcoal-100 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
             <div className="flex items-center justify-between">
-              <div>
-                <h1 className="font-display text-3xl text-charcoal-900 tracking-tight">
-                  Company Dashboard
-                </h1>
-                <p className="text-sm text-charcoal-500 mt-0.5">
-                  Manage your trip destinations
-                </p>
+              <div className="flex items-center gap-3">
+                {accountType === "company" && logoUrl ? (
+                  <img
+                    src={logoUrl}
+                    alt={accountName}
+                    className="w-9 h-9 rounded-lg object-cover border border-charcoal-200 shadow-sm"
+                  />
+                ) : accountType === "personal" ? (
+                  <div className="w-9 h-9 rounded-full bg-forest-700 text-white flex items-center justify-center text-sm font-semibold shadow-sm">
+                    {accountName ? accountName.charAt(0).toUpperCase() : "?"}
+                  </div>
+                ) : null}
+                <div>
+                  <h1 className="font-display text-3xl text-charcoal-900 tracking-tight">
+                    {accountName || "Dashboard"}
+                  </h1>
+                  <p className="text-sm text-charcoal-500 mt-0.5">
+                    {accountType === "personal" ? "Manage your trip" : "Manage your trip destinations"}
+                  </p>
+                </div>
               </div>
               <div className="flex gap-3">
                 <Link
