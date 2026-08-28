@@ -61,13 +61,7 @@ export default function DashboardPage() {
         const slug = tripData.trip?.slug || company.slug || "";
         setTripSlug(slug);
       } else {
-        const { data: existingTrip } = await supabase
-          .from("trips")
-          .select("slug")
-          .eq("company_id", company.id)
-          .single();
-
-        const slug = existingTrip?.slug || company.slug || "";
+        const slug = company.slug || "";
         setTripSlug(slug);
       }
 

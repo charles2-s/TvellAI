@@ -61,18 +61,6 @@ export async function POST(req: Request) {
           { status: 400 }
         );
       }
-
-      const { error: tripError } = await supabase
-        .from("trips")
-        .insert({
-          slug,
-          name,
-          company_id: data.user.id,
-        });
-
-      if (tripError) {
-        console.error("trip creation error:", tripError);
-      }
     }
 
     return NextResponse.json({ success: true, user: data.user });

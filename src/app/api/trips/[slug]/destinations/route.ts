@@ -12,89 +12,30 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    console.log("[/api/trips/[slug]/destinations] received slug:", JSON.stringify(slug));
-
     const supabase = await createClient();
-    console.log("[/api/trips/[slug]/destinations] supabase client url:", process.env.NEXT_PUBLIC_SUPABASE_URL);
 
-    let trip = null;
-
-    const tripBySlugResult = await supabase
-      .from("trips")
-      .select("id, name, slug, company_id")
+    const { data: company, error: companyError } = await supabase
+      .from("companies")
+      .select("id, slug, name")
       .eq("slug", slug)
       .single();
 
-    console.log("[/api/trips/[slug]/destinations] trips query result:", JSON.stringify({
-      data: tripBySlugResult.data,
-      error: tripBySlugResult.error,
-    }));
-
-    if (tripBySlugResult.data) {
-      trip = tripBySlugResult.data;
-    } else {
-      const companyBySlugResult = await supabase
-        .from("companies")
-        .select("id, slug, name")
-        .eq("slug", slug)
-        .single();
-
-      console.log("[/api/trips/[slug]/destinations] companies query result:", JSON.stringify({
-        data: companyBySlugResult.data,
-        error: companyBySlugResult.error,
-      }));
-
-      if (companyBySlugResult.data) {
-        const tripByCompanyResult = await supabase
-          .from("trips")
-          .select("id, name, slug, company_id")
-          .eq("company_id", companyBySlugResult.data.id)
-          .single();
-
-        console.log("[/api/trips/[slug]/destinations] trips-by-company query result:", JSON.stringify({
-          data: tripByCompanyResult.data,
-          error: tripByCompanyResult.error,
-        }));
-
-        trip = tripByCompanyResult.data;
-
-        if (!trip) {
-          const newTripResult = await supabase
-            .from("trips")
-            .insert({
-              slug: companyBySlugResult.data.slug || slug,
-              name: companyBySlugResult.data.name || slug,
-              company_id: companyBySlugResult.data.id,
-            })
-            .select("id, name, slug, company_id")
-            .single();
-
-          console.log("[/api/trips/[slug]/destinations] auto-create trip result:", JSON.stringify({
-            data: newTripResult.data,
-            error: newTripResult.error,
-          }));
-
-          trip = newTripResult.data || null;
-        }
-      }
-    }
-
-    if (!trip) {
+    if (companyError || !company) {
+      console.error("[/api/trips/[slug]/destinations] company query error:", companyError);
       return NextResponse.json({ error: "Trip not found" }, { status: 404 });
     }
 
     const { data: destinations, error: destError } = await supabase
       .from("destinations")
       .select("*")
-      .eq("company_id", trip.company_id)
+      .eq("company_id", company.id)
       .order("order", { ascending: true });
 
     if (destError) {
-      console.error("fetch destinations by trip error:", destError);
+      console.error("[/api/trips/[slug]/destinations] destinations query error:", destError);
       return NextResponse.json({ error: destError.message }, { status: 500 });
     }
 
-    const now = new Date();
     const enriched = (destinations || []).map((d: Destination) => {
       const startTime = d.start_time ? new Date(d.start_time) : null;
       const endTime = d.end_time ? new Date(d.end_time) : null;
@@ -115,9 +56,9 @@ export async function GET(
 
     return NextResponse.json({
       trip: {
-        id: trip.id,
-        name: trip.name,
-        slug: trip.slug,
+        id: company.id,
+        name: company.name,
+        slug: company.slug,
       },
       destinations: enriched,
     });
