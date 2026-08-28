@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { DestinationWithStatus, Trip } from "@/types/destination";
 import { DestinationCard } from "@/components/DestinationCard";
 import Link from "next/link";
@@ -16,7 +16,7 @@ export function TripClientPage({ slug }: TripClientPageProps) {
   const [error, setError] = useState("");
   const [now, setNow] = useState(new Date());
 
-  const fetchDestinations = async () => {
+  const fetchDestinations = useCallback(async () => {
     try {
       const res = await fetch(`/api/trips/${slug}/destinations`);
       if (!res.ok) {
@@ -33,19 +33,46 @@ export function TripClientPage({ slug }: TripClientPageProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
+
+  const autoCompletePastDestinations = useCallback(async () => {
+    const nowMs = new Date().getTime();
+    const pastDestinations = destinations.filter((d) => {
+      if (d.status === "Completed" || d.computed_status !== "Passed") return false;
+      const endTime = d.end_time ? new Date(d.end_time).getTime() : null;
+      return endTime !== null && endTime < nowMs;
+    });
+
+    for (const dest of pastDestinations) {
+      try {
+        const res = await fetch(`/api/destinations/${dest.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Completed" }),
+        });
+        if (res.ok) {
+          console.log(`Auto-completed destination: ${dest.name}`);
+        }
+      } catch (err) {
+        console.error(`Failed to auto-complete ${dest.name}:`, err);
+      }
+    }
+  }, [destinations]);
 
   useEffect(() => {
     fetchDestinations();
     const interval = setInterval(() => {
       setNow(new Date());
+    }, 1000);
+    const refetchInterval = setInterval(() => {
+      fetchDestinations();
+      autoCompletePastDestinations();
     }, 30000);
-    const refetchInterval = setInterval(fetchDestinations, 30000);
     return () => {
       clearInterval(interval);
       clearInterval(refetchInterval);
     };
-  }, [slug]);
+  }, [slug, fetchDestinations, autoCompletePastDestinations]);
 
   const handleToggleComplete = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "Completed" ? "Upcoming" : "Completed";
