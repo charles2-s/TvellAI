@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { DestinationWithStatus, Trip } from "@/types/destination";
 import { DestinationCard } from "@/components/DestinationCard";
-import { DestinationForm } from "@/components/DestinationForm";
 import Link from "next/link";
 
 interface TripClientPageProps {
@@ -15,7 +14,7 @@ export function TripClientPage({ slug }: TripClientPageProps) {
   const [destinations, setDestinations] = useState<DestinationWithStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showForm, setShowForm] = useState(false);
+  const [now, setNow] = useState(new Date());
 
   const fetchDestinations = async () => {
     try {
@@ -38,8 +37,14 @@ export function TripClientPage({ slug }: TripClientPageProps) {
 
   useEffect(() => {
     fetchDestinations();
-    const interval = setInterval(fetchDestinations, 60000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      setNow(new Date());
+    }, 30000);
+    const refetchInterval = setInterval(fetchDestinations, 30000);
+    return () => {
+      clearInterval(interval);
+      clearInterval(refetchInterval);
+    };
   }, [slug]);
 
   const handleToggleComplete = async (id: string, currentStatus: string) => {
@@ -98,6 +103,10 @@ export function TripClientPage({ slug }: TripClientPageProps) {
     );
   }
 
+  const upcoming = destinations.filter((d) => d.computed_status !== "Completed");
+  const completed = destinations.filter((d) => d.computed_status === "Completed");
+  const sorted = [...upcoming, ...completed];
+
   return (
     <div className="min-h-screen relative">
       <div
@@ -107,32 +116,22 @@ export function TripClientPage({ slug }: TripClientPageProps) {
             "url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80')",
         }}
       />
-      <div className="absolute inset-0 bg-charcoal-950/30 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-charcoal-950/50 via-charcoal-950/40 to-charcoal-950/60 pointer-events-none" />
 
       <div className="relative">
-        <header className="bg-white/70 backdrop-blur-md border-b border-charcoal-100 sticky top-0 z-10">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="font-display text-3xl text-charcoal-900 tracking-tight">
-                  {trip.name}
-                </h1>
-                <p className="text-sm text-charcoal-500 mt-0.5">
-                  {destinations.length} destination{destinations.length !== 1 ? "s" : ""}
-                </p>
-              </div>
-              <Link
-                href="/"
-                className="px-4 py-2 text-sm font-medium text-charcoal-600 hover:text-charcoal-900 border border-charcoal-200 rounded-xl hover:border-charcoal-300 transition-colors"
-              >
-                ← Back
-              </Link>
-            </div>
+        <header className="relative z-10 pt-10 pb-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 className="font-display text-4xl sm:text-5xl text-white mb-2 tracking-tight">
+              {trip.name}
+            </h1>
+            <p className="text-base text-white/80">
+              {destinations.length} destination{destinations.length !== 1 ? "s" : ""}
+            </p>
           </div>
         </header>
 
-        <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          {destinations.length === 0 ? (
+        <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {sorted.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center animate-slide-up">
               <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center mb-5 border border-white/20">
                 <span className="text-4xl">📍</span>
@@ -146,7 +145,7 @@ export function TripClientPage({ slug }: TripClientPageProps) {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {destinations.map((dest) => (
+              {sorted.map((dest) => (
                 <DestinationCard
                   key={dest.id}
                   destination={dest}
